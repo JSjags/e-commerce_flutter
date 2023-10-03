@@ -1,4 +1,4 @@
-# e_commerce
+# E_commerce
 
 A demo project to test flutter learnings
 
