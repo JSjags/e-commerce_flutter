@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Buyout</string>
+    <string name="facebook_app_id">725823526031452</string>
+    <string name="fb_login_protocol_scheme">fb725823526031452</string>
+    <string name="facebook_client_token">54de37467515c81376903722d04cc59d</string>
+</resources>

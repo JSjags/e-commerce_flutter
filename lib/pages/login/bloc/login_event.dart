@@ -11,6 +11,10 @@ class SignupButtonNavigateEvent extends LoginEvent {
 
 }
 
+class OAuthButtonClickedEvent extends LoginEvent {
+
+}
+
 class ForgotPasswordButtonClickedEvent extends LoginEvent {
 
 }

@@ -8,8 +8,15 @@ part 'signup_state.dart';
 
 class SignupBloc extends Bloc<SignupEvent, SignupState> {
   SignupBloc() : super(SignupInitial()) {
-    on<SignupEvent>((event, emit) {
-      // TODO: implement event handler
-    });
+    on<LoginButtonNavigateEvent>(loginButtonNavigateEvent);
+    on<SignupButtonClickedEvent>(signupButtonClickedEvent);
+  }
+
+  FutureOr<void> loginButtonNavigateEvent(LoginButtonNavigateEvent event, Emitter<SignupState> emit) {
+    emit(LoginNavigateToSignupActionState());
+  }
+
+  FutureOr<void> signupButtonClickedEvent(SignupButtonClickedEvent event, Emitter<SignupState> emit) {
+    emit(UserSigningUpState());
   }
 }

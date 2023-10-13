@@ -1,0 +1,93 @@
+import 'package:e_commerce/components/my_appbar.dart';
+import 'package:e_commerce/components/my_bottom_nav_bar.dart';
+import 'package:e_commerce/components/my_drawer.dart';
+import 'package:e_commerce/pages/cart/ui/cart.dart';
+import 'package:e_commerce/pages/search/ui/search.dart';
+import 'package:e_commerce/pages/shop/ui/shop.dart';
+import 'package:e_commerce/pages/wishlist/ui/wishlist.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:google_nav_bar/google_nav_bar.dart';
+
+class Home extends StatefulWidget {
+  const Home({Key? key}) : super(key: key);
+
+  @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+  void Function()? signOutUser() {
+    FirebaseAuth.instance.signOut();
+  }
+
+  final User user = FirebaseAuth.instance.currentUser!;
+
+  String figureTitle(int index) {
+    String title;
+
+    switch (index) {
+      case 0:
+        title = "Shop";
+        break;
+      case 1:
+        title = "Wishlist";
+        break;
+      case 2:
+        title = "Search";
+        break;
+      case 3:
+        title = "Cart";
+        break;
+      default:
+        title = "Home";
+        break;
+    }
+    return title;
+  }
+
+  void updatePageIndex(index) {
+    setState(() {
+      pageIndex = index;
+    });
+  }
+
+  Widget figureScreen(int index) {
+    Widget widgetScreen;
+
+    switch(index) {
+      case 0:
+        widgetScreen = const Shop();
+        break;
+      case 1:
+        widgetScreen = const WishList();
+        break;
+      case 2:
+        widgetScreen = const Search();
+        break;
+      case 3:
+        widgetScreen = const Cart();
+        break;
+      default:
+        widgetScreen = const Shop();
+        break;
+    }
+
+    return widgetScreen;
+  }
+
+  int pageIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      drawer: const MyDrawer(),
+      appBar: MyAppBar(pageIndex: pageIndex),
+      bottomNavigationBar: MyBottomNavBar(
+          pageIndex: pageIndex, updatePageIndex: updatePageIndex),
+      body: figureScreen(pageIndex),
+    );
+  }
+}
