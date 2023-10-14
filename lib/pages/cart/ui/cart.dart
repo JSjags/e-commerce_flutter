@@ -15,7 +15,7 @@ class _CartState extends State<Cart> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.store, size: 80,color: Colors.grey,),
+            const Icon(Icons.shopping_cart_outlined, size: 80,color: Colors.grey,),
             const SizedBox(height: 15.0,),
             Text("This is shop screen", style: GoogleFonts.quicksand(fontSize: 16, color: Colors.grey),)
           ],

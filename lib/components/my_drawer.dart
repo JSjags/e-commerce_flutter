@@ -1,3 +1,8 @@
+import 'package:e_commerce/pages/messages/ui/messages.dart';
+import 'package:e_commerce/pages/notifications/ui/notifications.dart';
+import 'package:e_commerce/pages/orders/ui/orders.dart';
+import 'package:e_commerce/pages/profile/ui/profile.dart';
+import 'package:e_commerce/pages/settings/ui/settings.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -29,7 +34,6 @@ class MyDrawer extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                           color: const Color(0xff4F0000)),
                     ),
-
                   ),
                   const SizedBox(
                     width: 10.0,
@@ -40,25 +44,47 @@ class MyDrawer extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          FirebaseAuth.instance.currentUser!.email.toString().trim(),
+                          FirebaseAuth.instance.currentUser!.email
+                              .toString()
+                              .trim(),
                           overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.quicksand(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                               fontSize: 16),
                         ),
-                        const SizedBox(height: 5,),
+                        const SizedBox(
+                          height: 5,
+                        ),
                         Row(children: [
-                          Icon(FirebaseAuth.instance.currentUser!.emailVerified ? Icons.verified_rounded : Icons.error, color: FirebaseAuth.instance.currentUser!.emailVerified ? Colors.green : Colors.white60,),
-                          const SizedBox(width: 5,),
-                          Text(FirebaseAuth.instance.currentUser!.emailVerified ? "Verified" : "Not verified", style: GoogleFonts.quicksand(color: FirebaseAuth.instance.currentUser!.emailVerified ? Colors.green : Colors.white30),)
+                          Icon(
+                            FirebaseAuth.instance.currentUser!.emailVerified
+                                ? Icons.verified_rounded
+                                : Icons.error,
+                            color:
+                                FirebaseAuth.instance.currentUser!.emailVerified
+                                    ? Colors.green
+                                    : Colors.white60,
+                          ),
+                          const SizedBox(
+                            width: 5,
+                          ),
+                          Text(
+                            FirebaseAuth.instance.currentUser!.emailVerified
+                                ? "Verified"
+                                : "Not verified",
+                            style: GoogleFonts.quicksand(
+                                color: FirebaseAuth
+                                        .instance.currentUser!.emailVerified
+                                    ? Colors.green
+                                    : Colors.white30),
+                          )
                         ])
                       ],
                     ),
                   )
                 ],
               ),
-
               const SizedBox(
                 height: 20.0,
               ),
@@ -70,7 +96,11 @@ class MyDrawer extends StatelessWidget {
                 height: 10.0,
               ),
               TextButton(
-                onPressed: () {},
+                onPressed: () => {
+                  Scaffold.of(context).closeDrawer(),
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => const Orders()))
+                },
                 child: Row(
                   children: [
                     const Icon(
@@ -93,7 +123,11 @@ class MyDrawer extends StatelessWidget {
                 height: 10.0,
               ),
               TextButton(
-                onPressed: () {},
+                onPressed: () => {
+                  Scaffold.of(context).closeDrawer(),
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => const Messages()))
+                },
                 child: Row(
                   children: [
                     const Icon(
@@ -116,7 +150,13 @@ class MyDrawer extends StatelessWidget {
                 height: 10.0,
               ),
               TextButton(
-                onPressed: () {},
+                onPressed: () => {
+                  Scaffold.of(context).closeDrawer(),
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const Notifications()))
+                },
                 child: Row(
                   children: [
                     const Icon(
@@ -139,7 +179,11 @@ class MyDrawer extends StatelessWidget {
                 height: 10.0,
               ),
               TextButton(
-                onPressed: () {},
+                onPressed: () => {
+                  Scaffold.of(context).closeDrawer(),
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => const Profile()))
+                },
                 child: Row(
                   children: [
                     const Icon(
@@ -162,7 +206,11 @@ class MyDrawer extends StatelessWidget {
                 height: 10.0,
               ),
               TextButton(
-                onPressed: () {},
+                onPressed: () => {
+                  Scaffold.of(context).closeDrawer(),
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => const Settings()))
+                },
                 child: Row(
                   children: [
                     const Icon(
