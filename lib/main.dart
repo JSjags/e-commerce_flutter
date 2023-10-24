@@ -1,3 +1,4 @@
+import 'package:e_commerce/data/theme.dart';
 import 'package:e_commerce/pages/auth/ui/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -15,11 +16,16 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   // This widget is the root of your application.
+
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+
+  MaterialColor colorCustom = MaterialColor(0xffE80011, color);
+
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: AuthPage(),
+      home: const AuthPage(),
+      theme: ThemeData(primarySwatch: colorCustom),
     );
   }
 }

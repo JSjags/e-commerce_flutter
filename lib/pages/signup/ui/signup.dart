@@ -1,9 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_commerce/components/my_button.dart';
 import 'package:e_commerce/components/my_textfield.dart';
 import 'package:e_commerce/components/my_tilecard.dart';
-import 'package:e_commerce/pages/login/ui/login.dart';
 import 'package:e_commerce/pages/signup/bloc/signup_bloc.dart';
 import 'package:e_commerce/services/auth-service.dart';
+import 'package:e_commerce/services/user.dart' as user_actions;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,57 +20,63 @@ class Signup extends StatefulWidget {
 }
 
 class _SignupState extends State<Signup> {
+
+  // email and password signup
   void signUserUp() async {
     setState(() {
       _absorb = true;
     });
 
-    // try sign in
+    // try sign up
     try {
       if (emailController.text.trim().isEmpty) {
         throw "Enter your email";
-        return;
       }
       if (passwordController.text.trim().isEmpty) {
         throw "Enter your password";
-        return;
       }
       if (confirmPasswordController.text.trim().isEmpty) {
         throw "Confirm your password";
-        return;
       }
 
-      if (passwordController.text.trim() == confirmPasswordController.text.trim()) {
+      if (passwordController.text.trim() ==
+          confirmPasswordController.text.trim()) {
         signupBloc.add(SignupButtonClickedEvent());
-        await FirebaseAuth.instance.createUserWithEmailAndPassword(
-            email: emailController.text, password: passwordController.text);
-        // signupBloc.close();
+        try {
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+              email: emailController.text.trim(),
+              password: passwordController.text.trim());
+          // signupBloc.close();
+          user_actions.User.addUserDetails(
+              uid: FirebaseAuth.instance.currentUser!.uid,
+              fullName: FirebaseAuth.instance.currentUser?.displayName ?? "",
+              email: FirebaseAuth.instance.currentUser!.email ??
+                  emailController.text.trim());
+        } catch (e) {
+          print(e.toString);
+        }
       } else {
         throw "Passwords don't match";
-        return;
       }
     } on FirebaseAuthException catch (e) {
       setState(() {
         _absorb = false;
       });
       if (e.code == 'email-already-in-use') {
-        setState(() => _errorMessage = "This email is taken"
-        );
+        setState(() => _errorMessage = "This email is taken");
       } else if (e.code == "weak-password") {
-        setState(() => _errorMessage = "Password must be at least 6 characters"
-        );
+        setState(
+            () => _errorMessage = "Password must be at least 6 characters");
       } else if (e.code == "invalid-email") {
-        setState(() => _errorMessage = "Invalid email"
-        );
+        setState(() => _errorMessage = "Invalid email");
       } else if (e.code == "INVALID_LOGIN_CREDENTIALS") {
-        setState(() => _errorMessage = "Invalid login credentials"
-        );
+        setState(() => _errorMessage = "Invalid login credentials");
       } else if (e.code == "too-many-requests") {
-        setState(() => _errorMessage = "Access to this account has been temporarily disabled due to many failed login attempts. You can immediately restore it by resetting your password or you can try again later.");
+        setState(() => _errorMessage =
+            "Access to this account has been temporarily disabled due to many failed login attempts. You can immediately restore it by resetting your password or you can try again later.");
       } else {
         print("hello: " + e.code);
-        setState(() => _errorMessage = "Error signing you in"
-        );
+        setState(() => _errorMessage = "Error signing you in");
       }
       signupBloc.emit(UserSignupFailedState());
     } catch (e) {
@@ -91,38 +98,51 @@ class _SignupState extends State<Signup> {
     }
   }
 
+  // google auth
   void googleLogin() async {
-
     signupBloc.add(OAuthButtonClickedEvent());
 
     try {
       await AuthService().signInWithGoogle();
+      user_actions.User.addUserDetails(
+          uid: FirebaseAuth.instance.currentUser!.uid,
+          fullName: FirebaseAuth.instance.currentUser?.displayName ?? "",
+          email: FirebaseAuth.instance.currentUser!.email ??
+              emailController.text.trim());
     } on FirebaseAuthException catch (e) {
       signupBloc.emit(UserSignupFailedState());
       if (e.code == 'account-exists-with-different-credential') {
-        setState(() => _errorMessage = "This account exists with different credential");
+        setState(() =>
+            _errorMessage = "This account exists with different credential");
       }
     } catch (e) {
       setState(() => _errorMessage =
-      "Unable to login at the moment, please check your network connection");
+          "Unable to login at the moment, please check your network connection");
       signupBloc.emit(UserSignupFailedState());
     }
   }
 
+  // facebook auth
   void facebookLogin() async {
-
     signupBloc.add(OAuthButtonClickedEvent());
 
     try {
       await AuthService().signInWithFacebook();
+      await user_actions.User.addUserDetails(
+          uid: FirebaseAuth.instance.currentUser!.uid,
+          fullName: FirebaseAuth.instance.currentUser?.displayName ?? "",
+          email: FirebaseAuth.instance.currentUser!.email ??
+              emailController.text.trim());
     } on FirebaseAuthException catch (e) {
       signupBloc.emit(UserSignupFailedState());
       if (e.code == 'account-exists-with-different-credential') {
-        setState(() => _errorMessage = "This account exists with different credential");
+        setState(() =>
+            _errorMessage = "This account exists with different credential");
       }
     } catch (e) {
+      print('-------++++++-----------$e]');
       setState(() => _errorMessage =
-      "Unable to login at the moment, please check your network connection");
+          "Unable to login at the moment, please check your network connection");
       signupBloc.emit(UserSignupFailedState());
     }
   }
@@ -142,7 +162,7 @@ class _SignupState extends State<Signup> {
     return BlocConsumer<SignupBloc, SignupState>(
       bloc: signupBloc,
       listenWhen: (previous, current) => current is SignupActionState,
-      buildWhen: (previous, current) => current is !SignupActionState,
+      buildWhen: (previous, current) => current is! SignupActionState,
       listener: (context, state) {},
       builder: (context, state) {
         return GestureDetector(
@@ -159,7 +179,7 @@ class _SignupState extends State<Signup> {
                         height: 160,
                       ),
                       Center(
-                        child: Text('Let\'s create an account for you!' ,
+                        child: Text('Let\'s create an account for you!',
                             style: GoogleFonts.quicksand(
                                 color: const Color(0xff4F0000),
                                 fontSize: 16,
@@ -169,57 +189,81 @@ class _SignupState extends State<Signup> {
                         height: 25.0,
                       ),
                       MyTextField(
-                          controller: emailController,
-                          hintText: 'Email',
-                          obscureText: false,
-                          prefixIcon: Icons.alternate_email_outlined, padSides: true,),
+                        controller: emailController,
+                        hintText: 'Email',
+                        obscureText: false,
+                        prefixIcon: Icons.alternate_email_outlined,
+                        padSides: true,
+                      ),
                       const SizedBox(
                         height: 15.0,
                       ),
                       MyTextField(
-                          controller: passwordController,
-                          hintText: 'Password',
-                          obscureText: true,
-                          prefixIcon: Icons.lock_outline, padSides: true,),
+                        controller: passwordController,
+                        hintText: 'Password',
+                        obscureText: true,
+                        prefixIcon: Icons.lock_outline,
+                        padSides: true,
+                      ),
                       const SizedBox(
                         height: 15.0,
                       ),
                       MyTextField(
-                          controller: confirmPasswordController,
-                          hintText: 'Confirm password',
-                          obscureText: true,
-                          prefixIcon: Icons.lock_outline, padSides: true,),
+                        controller: confirmPasswordController,
+                        hintText: 'Confirm password',
+                        obscureText: true,
+                        prefixIcon: Icons.lock_outline,
+                        padSides: true,
+                      ),
                       const SizedBox(
                         height: 10.0,
                       ),
-                      const SizedBox(height: 10.0,),
+                      const SizedBox(
+                        height: 10.0,
+                      ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                        child: state is UserSignupFailedState ? Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Icon(Icons.error_outline_rounded, color: Colors.red, size: 20.0,),
-                            const SizedBox(width: 5.0,),
-                            Flexible(child: Text(_errorMessage, style: GoogleFonts.quicksand(color: Colors.red),))
-                          ],) : const SizedBox(),
+                        child: state is UserSignupFailedState
+                            ? Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Icon(
+                                    Icons.error_outline_rounded,
+                                    color: Colors.red,
+                                    size: 20.0,
+                                  ),
+                                  const SizedBox(
+                                    width: 5.0,
+                                  ),
+                                  Flexible(
+                                      child: Text(
+                                    _errorMessage,
+                                    style: GoogleFonts.quicksand(
+                                        color: Colors.red),
+                                  ))
+                                ],
+                              )
+                            : const SizedBox(),
                       ),
-                      const SizedBox(height: 15.0,),
+                      const SizedBox(
+                        height: 15.0,
+                      ),
                       MyButton(
                           onTap: signUserUp,
                           padSides: true,
                           child: state is UserSigningUpState
                               ? Container(
-                            width: 24,
-                            height: 24,
-                            child: const CircularProgressIndicator(
-                              color: Colors.white,
-                            ),
-                          )
+                                  width: 24,
+                                  height: 24,
+                                  child: const CircularProgressIndicator(
+                                    color: Colors.white,
+                                  ),
+                                )
                               : Text("Sign up",
-                              style: GoogleFonts.quicksand(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18))),
+                                  style: GoogleFonts.quicksand(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18))),
                       const SizedBox(
                         height: 25,
                       ),
@@ -229,12 +273,12 @@ class _SignupState extends State<Signup> {
                           children: [
                             Expanded(
                                 child: Divider(
-                                  height: 1,
-                                  color: Color(0xff4F0000).withOpacity(0.2),
-                                )),
+                              height: 1,
+                              color: Color(0xff4F0000).withOpacity(0.2),
+                            )),
                             Padding(
                               padding:
-                              const EdgeInsets.symmetric(horizontal: 8.0),
+                                  const EdgeInsets.symmetric(horizontal: 8.0),
                               child: Text(
                                 'Or continue with',
                                 style: GoogleFonts.quicksand(
@@ -244,9 +288,9 @@ class _SignupState extends State<Signup> {
                             ),
                             Expanded(
                                 child: Divider(
-                                  height: 1,
-                                  color: Color(0xff4F0000).withOpacity(0.2),
-                                ))
+                              height: 1,
+                              color: Color(0xff4F0000).withOpacity(0.2),
+                            ))
                           ],
                         ),
                       ),
@@ -257,7 +301,9 @@ class _SignupState extends State<Signup> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           // Google login
-                          TileCard(onTap: googleLogin, imagePath: "lib/images/google.png"),
+                          TileCard(
+                              onTap: googleLogin,
+                              imagePath: "lib/images/google.png"),
                           const SizedBox(
                             width: 15.0,
                           ),
@@ -267,7 +313,9 @@ class _SignupState extends State<Signup> {
                           //   width: 15.0,
                           // ),
                           // Facebook login
-                          TileCard(onTap: facebookLogin, imagePath: "lib/images/facebook.png"),
+                          TileCard(
+                              onTap: facebookLogin,
+                              imagePath: "lib/images/facebook.png"),
                         ],
                       ),
                       const SizedBox(
@@ -293,7 +341,9 @@ class _SignupState extends State<Signup> {
                           )
                         ],
                       ),
-                      const SizedBox(height: 20,)
+                      const SizedBox(
+                        height: 20,
+                      )
                     ]),
                   ),
                 ),

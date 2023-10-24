@@ -3,7 +3,7 @@ import 'package:e_commerce/components/my_textfield.dart';
 import 'package:e_commerce/components/my_tilecard.dart';
 import 'package:e_commerce/pages/forgot_password/ui/forgot_password.dart';
 import 'package:e_commerce/pages/login/bloc/login_bloc.dart';
-import 'package:e_commerce/pages/signup/ui/signup.dart';
+import 'package:e_commerce/services/user.dart' as user_actions;
 import 'package:e_commerce/services/auth-service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +20,7 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+
   void signUserIn() async {
     setState(() {
       _absorb = true;
@@ -87,6 +88,11 @@ class _LoginState extends State<Login> {
 
     try {
       await AuthService().signInWithGoogle();
+      await user_actions.User.addUserDetails(
+          uid: FirebaseAuth.instance.currentUser!.uid,
+          fullName: FirebaseAuth.instance.currentUser?.displayName ?? "",
+          email: FirebaseAuth.instance.currentUser!.email ??
+              emailController.text.trim());
     } on FirebaseAuthException catch (e) {
       loginBloc.emit(UserLoginFailedState());
       if (e.code == 'account-exists-with-different-credential') {
@@ -105,6 +111,11 @@ class _LoginState extends State<Login> {
 
     try {
       await AuthService().signInWithFacebook();
+      await user_actions.User.addUserDetails(
+          uid: FirebaseAuth.instance.currentUser!.uid,
+          fullName: FirebaseAuth.instance.currentUser?.displayName ?? "",
+          email: FirebaseAuth.instance.currentUser!.email ??
+              emailController.text.trim());
     } on FirebaseAuthException catch (e) {
       loginBloc.emit(UserLoginFailedState());
       if (e.code == 'account-exists-with-different-credential') {
@@ -272,7 +283,7 @@ class _LoginState extends State<Login> {
                               Expanded(
                                   child: Divider(
                                 height: 1,
-                                color: Color(0xff4F0000).withOpacity(0.2),
+                                color: const Color(0xff4F0000).withOpacity(0.2),
                               ))
                             ],
                           ),

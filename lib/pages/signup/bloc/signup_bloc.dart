@@ -10,6 +10,7 @@ class SignupBloc extends Bloc<SignupEvent, SignupState> {
   SignupBloc() : super(SignupInitial()) {
     on<LoginButtonNavigateEvent>(loginButtonNavigateEvent);
     on<SignupButtonClickedEvent>(signupButtonClickedEvent);
+    on<OAuthButtonClickedEvent>(oAuthButtonClickedEvent);
   }
 
   FutureOr<void> loginButtonNavigateEvent(LoginButtonNavigateEvent event, Emitter<SignupState> emit) {
@@ -17,6 +18,10 @@ class SignupBloc extends Bloc<SignupEvent, SignupState> {
   }
 
   FutureOr<void> signupButtonClickedEvent(SignupButtonClickedEvent event, Emitter<SignupState> emit) {
+    emit(UserSigningUpState());
+  }
+
+  FutureOr<void> oAuthButtonClickedEvent(OAuthButtonClickedEvent event, Emitter<SignupState> emit) {
     emit(UserSigningUpState());
   }
 }

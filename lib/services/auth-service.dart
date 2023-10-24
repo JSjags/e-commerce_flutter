@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:e_commerce/services/user.dart' as user_actions;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -8,6 +10,8 @@ class AuthService {
     // begin interactive sign in process
     final GoogleSignInAccount? gUser = await GoogleSignIn().signIn();
 
+    print('-------------------------${gUser?.displayName}');
+
     // obtain auth details from request
     final GoogleSignInAuthentication gAuth = await gUser!.authentication;
 
@@ -16,7 +20,7 @@ class AuthService {
         accessToken: gAuth.accessToken, idToken: gAuth.idToken);
 
     // finally, sign user in
-    return FirebaseAuth.instance.signInWithCredential(credential);
+    await FirebaseAuth.instance.signInWithCredential(credential);
   }
 
   signInWithFacebook() async {
@@ -28,6 +32,6 @@ class AuthService {
         FacebookAuthProvider.credential(loginResult.accessToken!.token);
 
     // finally, sign user in with credential
-    return FirebaseAuth.instance.signInWithCredential(facebookAuthCredential);
+    await FirebaseAuth.instance.signInWithCredential(facebookAuthCredential);
   }
 }

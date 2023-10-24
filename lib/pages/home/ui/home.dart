@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:e_commerce/components/my_appbar.dart';
 import 'package:e_commerce/components/my_bottom_nav_bar.dart';
 import 'package:e_commerce/components/my_drawer.dart';
@@ -11,7 +12,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 
 class Home extends StatefulWidget {
-  const Home({Key? key}) : super(key: key);
+  final int page;
+  const Home({Key? key, this.page = 0}) : super(key: key);
 
   @override
   State<Home> createState() => _HomeState();
@@ -20,6 +22,15 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   void Function()? signOutUser() {
     FirebaseAuth.instance.signOut();
+  }
+
+  var pageIndex;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    pageIndex = widget.page;
   }
 
   final User user = FirebaseAuth.instance.currentUser!;
@@ -47,7 +58,7 @@ class _HomeState extends State<Home> {
     return title;
   }
 
-  void updatePageIndex(index) {
+  void Function(int)? updatePageIndex(index) {
     setState(() {
       pageIndex = index;
     });
@@ -77,17 +88,24 @@ class _HomeState extends State<Home> {
     return widgetScreen;
   }
 
-  int pageIndex = 0;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      drawer: const MyDrawer(),
-      appBar: MyAppBar(pageIndex: pageIndex),
-      bottomNavigationBar: MyBottomNavBar(
-          pageIndex: pageIndex, updatePageIndex: updatePageIndex),
-      body: figureScreen(pageIndex),
-    );
+    return StreamBuilder(stream: FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .snapshots(), builder: (context, snapshot) {
+      final List cart = snapshot.data?['cart'] ?? [];
+
+      return Scaffold(
+        backgroundColor: Colors.white,
+        drawer: const MyDrawer(),
+        appBar: MyAppBar(pageIndex: pageIndex),
+        bottomNavigationBar: MyBottomNavBar(
+            pageIndex: pageIndex, updatePageIndex: updatePageIndex, cart: cart),
+        body: figureScreen(pageIndex),
+      );
+
+    });
   }
 }
